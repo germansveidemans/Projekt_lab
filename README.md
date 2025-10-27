@@ -47,3 +47,10 @@ We're developing an intelligent web service that automatically calculates optima
 - **Route sequence optimization** within each courier's daily plan
 - **Delivery status tracking** from dispatch to completion
 - **Customer communication** with estimated delivery times
+
+## Concept Model 
+
+### Database Schema and Key Entities 
+<img width="1059" height="774" alt="Screenshot 2025-10-27 134846" src="https://github.com/user-attachments/assets/43a5246f-224b-4f98-b189-964a714484df" />
+
+
