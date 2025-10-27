@@ -23,9 +23,13 @@ We're developing an intelligent web service that automatically calculates optima
 ### Backend
 - **Python Flask** - Lightweight web framework for API development
 - **MySQL** - Relational database for storing orders, routes, and courier data
-- **SQLAlchemy** - ORM for database operations
 
-### Key Features
+### API Development
+- **RESTful API** - JSON-based API endpoints
+- **Swagger** - API documentation
+- **Postman** - API testing and development
+
+## Key Features
 
 #### Smart Route Calculation
 - **Automatic route optimization** using address geocoding
