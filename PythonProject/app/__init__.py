@@ -10,12 +10,32 @@ from app.controllers.Work_areaController import work_area_bp
 from app.controllers.page_controller import page_bp
 
 
+#def create_app():
+    #app = Flask(__name__)
+    #app.config.from_object(Config)
+
+    #init_pool(app)
+
+    #@app.teardown_appcontext
+    #def teardown_db(exception):
+        #close_connection(exception)
+
+    # Blueprints
+    #app.register_blueprint(user_bp)
+    #app.register_blueprint(car_bp)
+    #app.register_blueprint(client_bp)
+    #app.register_blueprint(order_bp)
+    #app.register_blueprint(route_bp)
+    #app.register_blueprint(work_area_bp)
+    #app.register_blueprint(page_bp)
+
+    #return app
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
     init_pool(app)
-
+    app.secret_key = "schange_me_to_random_string" # TO-DO 
     @app.teardown_appcontext
     def teardown_db(exception):
         close_connection(exception)
@@ -30,4 +50,3 @@ def create_app():
     app.register_blueprint(page_bp)
 
     return app
-

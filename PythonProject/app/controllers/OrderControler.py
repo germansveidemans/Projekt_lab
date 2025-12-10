@@ -1,8 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from app.services.OrderService import OrderService
 
-order_bp = Blueprint("orders", __name__, url_prefix="/order")
+order_bp = Blueprint("orders", __name__, url_prefix="/orders")
 
+@order_bp.get("/ui")
+def order_page():
+    return render_template("orders.html")
 
 def order_to_dict(o):
     return {

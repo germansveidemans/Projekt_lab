@@ -2,10 +2,75 @@
 {% block title %}Orders{% endblock %}
 {% block content %}
 <h1>Orders</h1>
+
 <p>{{ number_of_orders }}</p>
+
 {% for order in orders %}
     <p>
-        <a href="/orders/{{ order }}">{{ order }}</a>
+        <a href="/orders/{{ order.id }}">{{ order.id }}</a>
+        <a href="/client/ui?client_id={{ order.client_id }}">open client</a>
+        <a href="/cars/ui?car_id={{ order.car_id }}">open car</a>
     </p>
 {% endfor %}
+
+<div id="orders-list"></div>
+
+<hr>
+
+<h2 id="form-title">Create order</h2>
+<form id="order-form">
+    <input type="hidden" id="order-id">
+
+    <label>
+        Route ID (optional):
+        <input type="number" id="route_id">
+    </label><br>
+
+    <label>
+        Sequence:
+        <input type="number" id="sequence" required>
+    </label><br>
+
+    <label>
+        Size:
+        <input type="number" id="size" required>
+    </label><br>
+
+    <label>
+        Weight:
+        <input type="number" id="weight" required>
+    </label><br>
+
+    <label>
+        Client ID (optional):
+        <input type="number" id="client_id">
+    </label><br>
+
+    <label>
+        Address:
+        <input type="text" id="address">
+    </label><br>
+
+    <label>
+        Expected delivery time (text / ISO):
+        <input type="text" id="expected_delivery_time" required>
+    </label><br>
+
+    <label>
+        Route status:
+        <input type="text" id="route_status" required>
+    </label><br>
+
+    <label>
+        Actual delivery time (optional):
+        <input type="text" id="actual_delivery_time">
+    </label><br>
+
+    <button type="submit" id="submit-btn">Create</button>
+    <button type="button" id="cancel-edit" style="display:none;">Cancel edit</button>
+</form>
+
+<p id="message"></p>
+
+<script src="{{ url_for('static', filename='js/orders.js') }}"></script>
 {% endblock %}

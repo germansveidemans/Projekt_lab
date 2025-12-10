@@ -1,8 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from app.services.Work_areaService import WorkAreaService
 
-work_area_bp = Blueprint("work_areas", __name__, url_prefix="/work-areas")
+work_area_bp = Blueprint("work_areas", __name__, url_prefix="/work_areas")
 
+@work_area_bp.get("/ui")
+def work_area_page():
+    return render_template("work_areas.html")
 
 @work_area_bp.get("/")
 def list_work_areas():

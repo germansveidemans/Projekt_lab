@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Work areas{% endblock %}
+
+{% block content %}
+<h1>Work areas</h1>
+
+<div id="areas-list"></div>
+
+<hr>
+
+<h2 id="form-title">Create work area</h2>
+<form id="area-form">
+    <input type="hidden" id="area-id">
+
+    <label>
+        Name:
+        <input type="text" id="name" required>
+    </label><br>
+
+    <button type="submit" id="submit-btn">Create</button>
+    <button type="button" id="cancel-edit" style="display:none;">Cancel edit</button>
+</form>
+
+<p id="message"></p>
+{% endblock %}

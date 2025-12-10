@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template
 from app.services.CarService import CarService
 
-car_bp = Blueprint("cars", __name__, url_prefix="/car")
+car_bp = Blueprint("cars", __name__, url_prefix="/cars")
 
 @car_bp.get("/ui")
 def cars_page():

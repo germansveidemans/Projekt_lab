@@ -12,11 +12,11 @@ const formTitle = document.getElementById("form-title");
 const submitBtn = document.getElementById("submit-btn");
 const cancelEditBtn = document.getElementById("cancel-edit");
 
-// Ielādē visas automašīnas, atverot lapu
+// Загружаем все машины при открытии страницы
 window.addEventListener("DOMContentLoaded", loadCars);
 
 async function loadCars() {
-    const res = await fetch("/cars/");
+    const res = await fetch("/cars/");      // <<< РАНЬШЕ тут было /cars/
     const cars = await res.json();
 
     carsList.innerHTML = "";
@@ -52,7 +52,7 @@ async function loadCars() {
 }
 
 async function startEdit(id) {
-    const res = await fetch(`/cars/${id}`);
+    const res = await fetch(`/cars/${id}`);   // <<< было /cars/${id}
     if (!res.ok) {
         showMessage("Car not found", true);
         return;
@@ -91,8 +91,8 @@ form.addEventListener("submit", async (e) => {
     const id = carIdInput.value;
 
     if (id) {
-        // ATJAUNINĀT (PUT /cars/<id>)
-        const res = await fetch(`/cars/${id}`, {
+        // PUT /car/<id>
+        const res = await fetch(`/cars/${id}`, {   // <<< было /cars/${id}
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
@@ -105,8 +105,8 @@ form.addEventListener("submit", async (e) => {
         }
         showMessage("Car updated");
     } else {
-        // IZVEIDOT (POST /cars/)
-        const res = await fetch("/cars/", {
+        // POST /car/
+        const res = await fetch("/cars/", {        // <<< было /cars/
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
@@ -131,7 +131,7 @@ cancelEditBtn.addEventListener("click", () => {
 async function deleteCar(id) {
     if (!confirm("Delete this car?")) return;
 
-    const res = await fetch(`/cars/${id}`, {
+    const res = await fetch(`/cars/${id}`, {   // <<< было /cars/${id}
         method: "DELETE",
     });
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template
 from app.services.ClientService import ClientService
 
-client_bp = Blueprint("clients", __name__, url_prefix="/client")
+client_bp = Blueprint("clients", __name__, url_prefix="/clients")
 
 @client_bp.get("/ui")
 def client_page():
