@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<h1>Users</h1>
+
+<div id="users-list"></div>
+
+<hr>
+
+<h2 id="form-title">Create User</h2>
+<form id="user-form">
+    <input type="hidden" id="user-id">
+
+    <label>
+        Username:
+        <input type="text" id="username" required>
+    </label><br>
+
+    <label>
+        Password:
+        <input type="password" id="password" required>
+    </label><br>
+
+    <label>
+        Role:
+        <input type="text" id="role" required>
+        <!-- vai te var uztaisīt <select> ar 'admin', 'worker', 'client', utt. -->
+    </label><br>
+
+    <label>
+        Work area ID:
+        <input type="number" id="work_area_id">
+    </label><br>
+
+    <button type="submit" id="submit-btn">Create</button>
+    <button type="button" id="cancel-edit" style="display:none;">Cancel edit</button>
+</form>
+
+<p id="message"></p>
+
+<script src="{{ url_for('static', filename='js/users.js') }}"></script>
+{% endblock %}

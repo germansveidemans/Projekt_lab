@@ -1,8 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from app.services.ClientService import ClientService
 
 client_bp = Blueprint("clients", __name__, url_prefix="/client")
 
+@client_bp.get("/ui")
+def client_page():
+    return render_template("clients.html")
 
 @client_bp.get("/")
 def list_clients():

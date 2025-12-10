@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<h1>Clients</h1>
+
+<div id="clients-list"></div>
+
+<hr>
+
+<h2 id="form-title">Create client</h2>
+<form id="client-form">
+    <input type="hidden" id="client-id">
+
+    <label>
+        Name and surname:
+        <input type="text" id="name_surname" required>
+    </label><br>
+
+    <label>
+        Email:
+        <input type="email" id="email" required>
+    </label><br>
+
+    <label>
+        Address:
+        <input type="text" id="address" required>
+    </label><br>
+
+    <label>
+        Phone number:
+        <input type="text" id="phone_number" required>
+    </label><br>
+
+    <button type="submit" id="submit-btn">Create</button>
+    <button type="button" id="cancel-edit" style="display:none;">Cancel edit</button>
+</form>
+
+<p id="message"></p>
+
+<script src="{{ url_for('static', filename='js/clients.js') }}"></script>
+{% endblock %}

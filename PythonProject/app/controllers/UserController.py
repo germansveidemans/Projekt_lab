@@ -1,8 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from app.services.UserService import UserService
 
 user_bp = Blueprint("users", __name__, url_prefix="/users")
 
+@user_bp.get("/ui")
+def user_page():
+    return render_template("users.html")
 
 @user_bp.get("/")
 def list_users():
