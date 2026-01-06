@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { listUsers, createUser, updateUser, deleteUser } from '../services/api';
 import UserForm from '../components/UserForm';
+import CourierStatisticsModal from '../components/CourierStatisticsModal';
 import '../styles.css';
 
 export default function Users() {
@@ -11,6 +12,8 @@ export default function Users() {
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [selectedCourier, setSelectedCourier] = useState(null);
 
   useEffect(() => {
     console.log('🔄 Users useEffect running')
@@ -71,6 +74,16 @@ export default function Users() {
     }
   };
 
+  const handleStatisticsClick = (user) => {
+    setSelectedCourier(user);
+    setShowStatistics(true);
+  };
+
+  const handleCloseStatistics = () => {
+    setShowStatistics(false);
+    setSelectedCourier(null);
+  };
+
   return (
     <div className="container">
       <h1>Users Management</h1>
@@ -126,6 +139,15 @@ export default function Users() {
                       >
                         Edit
                       </button>
+                      {user.role === 'kurjers' && (
+                        <button
+                          className="btn btn-small btn-info"
+                          onClick={() => handleStatisticsClick(user)}
+                          style={{ backgroundColor: '#2196F3', marginLeft: '5px' }}
+                        >
+                          Statistics
+                        </button>
+                      )}
                       <button
                         className="btn btn-small btn-delete"
                         onClick={() => handleDeleteClick(user.id)}
@@ -147,6 +169,14 @@ export default function Users() {
             setShowForm(false);
             setEditingUser(null);
           }}
+        />
+      )}
+      
+      {showStatistics && selectedCourier && (
+        <CourierStatisticsModal
+          courierId={selectedCourier.id}
+          courierName={selectedCourier.username}
+          onClose={handleCloseStatistics}
         />
       )}
     </div>

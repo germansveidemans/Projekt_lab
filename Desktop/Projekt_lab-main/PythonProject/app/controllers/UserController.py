@@ -1,3 +1,4 @@
+
 from flask import Blueprint, request, jsonify
 from app.services.UserService import UserService
 
@@ -9,11 +10,16 @@ def list_users():
         users = UserService.list_users()
         return jsonify([
             {
-                "id": u.id,
-                "username": u.username,
-                "password": u.password,
-                "role": u.role,
-                "work_area_id": u.work_area_id
+
+"id": u.id,
+
+"username": u.username,
+
+"password": u.password,
+
+"role": u.role,
+
+"work_area_id": u.work_area_id
             }
             for u in users
         ])
@@ -26,14 +32,19 @@ def list_users():
 def get_user(user_id):
     user = UserService.get_user(user_id)
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error":"User not found"}), 404
 
     return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "password": user.password,
-        "role": user.role,
-        "work_area_id": user.work_area_id
+
+"id": user.id,
+
+"username": user.username,
+
+"password": user.password,
+
+"role": user.role,
+
+"work_area_id": user.work_area_id
     })
 
 
@@ -41,10 +52,19 @@ def get_user(user_id):
 def create_user():
     data = request.get_json() or {}
 
-    required = ["username", "password", "role"]
+    required = ["username","password","role"]
     for field in required:
         if field not in data:
-            return jsonify({"error": f"{field} is required"}), 400
+            return jsonify({"error":f"{field} is required"}), 400
+
+    if not data.get("username") or not data.get("username").strip():
+        return jsonify({"error":"Username is required"}), 400
+    if not data.get("password") or not data.get("password").strip():
+        return jsonify({"error":"Password is required"}), 400
+    if len(data["username"].strip()) < 3:
+        return jsonify({"error":"Username must be at least 3 characters"}), 400
+    if len(data["password"].strip()) < 4:
+        return jsonify({"error":"Password must be at least 4 characters"}), 400
 
     user = UserService.create_user(
         data["username"],
@@ -60,10 +80,19 @@ def create_user():
 def update_user(user_id):
     data = request.get_json() or {}
 
-    required = ["username", "password", "role"]
+    required = ["username","password","role"]
     for field in required:
         if field not in data:
-            return jsonify({"error": f"{field} is required"}), 400
+            return jsonify({"error":f"{field} is required"}), 400
+
+    if not data.get("username") or not data.get("username").strip():
+        return jsonify({"error":"Username is required"}), 400
+    if not data.get("password") or not data.get("password").strip():
+        return jsonify({"error":"Password is required"}), 400
+    if len(data["username"].strip()) < 3:
+        return jsonify({"error":"Username must be at least 3 characters"}), 400
+    if len(data["password"].strip()) < 4:
+        return jsonify({"error":"Password must be at least 4 characters"}), 400
 
     user = UserService.update_user(
         user_id,
@@ -74,16 +103,16 @@ def update_user(user_id):
     )
 
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error":"User not found"}), 404
 
-    return jsonify({"status": "updated"})
+    return jsonify({"status":"updated"})
 
 
 @user_bp.delete("/<int:user_id>")
 def delete_user(user_id):
     deleted = UserService.delete_user(user_id)
     if not deleted:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error":"User not found"}), 404
 
-    return jsonify({"status": "deleted"})
+    return jsonify({"status":"deleted"})
 

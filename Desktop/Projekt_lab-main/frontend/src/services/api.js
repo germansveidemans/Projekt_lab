@@ -116,6 +116,11 @@ export async function listOrders() {
   return handleResponse(res);
 }
 
+export async function listAllOrders() {
+  const res = await fetch(`${BASE}/orders/all`);
+  return handleResponse(res);
+}
+
 export async function createOrder(orderData) {
   const res = await fetch(`${BASE}/orders/`, {
     method: 'POST',
@@ -217,6 +222,13 @@ export async function deleteRoute(routeId) {
   return handleResponse(res);
 }
 
+export async function completeRoute(routeId) {
+  const res = await fetch(`${BASE}/routes/${routeId}/complete`, {
+    method: 'POST',
+  });
+  return handleResponse(res);
+}
+
 // Legacy - kept for compatibility
 export async function getUsers() {
   return listUsers();
@@ -248,4 +260,15 @@ export async function getSuitableCouriers(orderIds) {
 export async function getCourierStatus(courierId) {
   const res = await fetch(`${BASE}/couriers/${courierId}/status`)
   return handleResponse(res)
+}
+
+// Statistics API
+export async function getCourierStatistics(courierId) {
+  const res = await fetch(`${BASE}/statistics/courier/${courierId}`);
+  return handleResponse(res);
+}
+
+export async function getAllStatistics() {
+  const res = await fetch(`${BASE}/statistics/all`);
+  return handleResponse(res);
 }

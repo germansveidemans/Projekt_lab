@@ -1,3 +1,4 @@
+
 from app.db import get_connection
 from app.models.order import Order
 
@@ -25,7 +26,6 @@ class OrderService:
                 address=row["adress"],
                 expected_delivery_time=row["expected_delivery_time"],
                 route_status=row["route_status"],
-                actual_delivery_time=row["actual_delivery_time"],
                 created_at=row["created_at"],
                 updated_at=row["updated_at"],
             )
@@ -55,7 +55,6 @@ class OrderService:
             address=row["adress"],
             expected_delivery_time=row["expected_delivery_time"],
             route_status=row["route_status"],
-            actual_delivery_time=row["actual_delivery_time"],
             created_at=row["created_at"],
             updated_at=row["updated_at"],
         )
@@ -68,19 +67,18 @@ class OrderService:
         address: str | None,
         expected_delivery_time,
         route_status: str,
-        actual_delivery_time=None,
     ) -> Order:
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO orders (
                 size, weight, client_id, adress,
-                expected_delivery_time, route_status, actual_delivery_time, created_at, updated_at
+                expected_delivery_time, route_status, created_at, updated_at
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+            VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
         """, (
             size, weight, client_id, address,
-            expected_delivery_time, route_status, actual_delivery_time,
+            expected_delivery_time, route_status,
         ))
         conn.commit()
         order_id = cursor.lastrowid
@@ -97,7 +95,6 @@ class OrderService:
         address: str | None,
         expected_delivery_time,
         route_status: str,
-        actual_delivery_time=None,
     ) -> Order | None:
         conn = get_connection()
         cursor = conn.cursor()
@@ -109,12 +106,11 @@ class OrderService:
                 adress=%s,
                 expected_delivery_time=%s,
                 route_status=%s,
-                actual_delivery_time=%s,
                 updated_at=NOW()
             WHERE id=%s
         """, (
             size, weight, client_id, address,
-            expected_delivery_time, route_status, actual_delivery_time,
+            expected_delivery_time, route_status,
             order_id,
         ))
         conn.commit()
@@ -125,6 +121,38 @@ class OrderService:
             return None
 
         return OrderService.get_order(order_id)
+
+    @staticmethod
+    def update_order_status(order_id: int, new_status: str) -> bool:
+        """Update only the route_status of an order"""
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE orders
+            SET route_status=%s,
+                updated_at=NOW()
+            WHERE id=%s
+        """, (new_status, order_id))
+        conn.commit()
+        updated = cursor.rowcount > 0
+        cursor.close()
+        return updated
+
+    @staticmethod
+    def update_order_delivery_date(order_id: int, delivery_date) -> bool:
+        """Update the expected_delivery_time of an order"""
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE orders
+            SET expected_delivery_time=%s,
+                updated_at=NOW()
+            WHERE id=%s
+        """, (delivery_date, order_id))
+        conn.commit()
+        updated = cursor.rowcount > 0
+        cursor.close()
+        return updated
 
     @staticmethod
     def delete_order(order_id: int) -> bool:

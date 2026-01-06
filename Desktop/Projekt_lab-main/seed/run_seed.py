@@ -8,7 +8,6 @@ from app.config import Config
 
 SQL_PATH = pathlib.Path(__file__).parent / "reset_seed.sql"
 raw = SQL_PATH.read_text(encoding="utf-8")
-# strip comments and split by semicolon safely
 statements = []
 current = []
 for line in raw.splitlines():

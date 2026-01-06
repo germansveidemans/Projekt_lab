@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from itertools import permutations
 
 def find_optimal_route(city_name, points, start_point = None, route_type = 'drive', plot_route = True):
-    # Normalize input to coordinates (lat, lon)
     def geocode_point(point):
         if isinstance(point, str):
             return ox.geocode(point)
@@ -20,21 +19,19 @@ def find_optimal_route(city_name, points, start_point = None, route_type = 'driv
         graph = ox.add_edge_travel_times(graph)
         
         print("Adreses ģeокodēšana...")
-        # Resolve all points to coordinates
+
         coordinates = []
         for point in points:
             lat, lon = geocode_point(point)
             coordinates.append((lat, lon))
             print(f"  {point} -> {lat:.4f}, {lon:.4f}")
         
-        # Snap coordinates to nearest graph nodes
         nodes = []
         for lat, lon in coordinates:
             node = ox.distance.nearest_nodes(graph, lon, lat)
             nodes.append(node)
         
         print("Laiku matricas aprēķinašana...")
-        # Build travel-time matrix between all nodes
         n = len(points)
         time_matrix = np.zeros((n, n))
         
@@ -50,19 +47,15 @@ def find_optimal_route(city_name, points, start_point = None, route_type = 'driv
                     time_matrix[i][j] = 0
         
         print("Optimālu apmeklējuma secības meklēšana...")
-        # Evaluate permutations to find minimal travel time
         point_indices = list(range(n))
         
         if start_point is not None:
-            # Honor a fixed starting point when provided
             start_index = points.index(start_point)
             other_indices = [i for i in point_indices if i != start_index]
             permutations_list = [[start_index] + list(p) for p in permutations(other_indices)]
         else:
-            # Otherwise evaluate all possible starting points
             permutations_list = list(permutations(point_indices))
         
-        # Track minimal travel time
         min_time = float('inf')
         best_route_indices = None
         
@@ -75,7 +68,6 @@ def find_optimal_route(city_name, points, start_point = None, route_type = 'driv
             if total_time < min_time:
                 min_time = total_time
                 best_route_indices = route
-        # Build full route from shortest-path segments
         full_route_nodes = []
         best_route_points = [points[i] for i in best_route_indices]
         
@@ -84,10 +76,8 @@ def find_optimal_route(city_name, points, start_point = None, route_type = 'driv
             segment = nx.shortest_path(graph, nodes[i], nodes[j], weight='travel_time')
             full_route_nodes.extend(segment[:-1])
         
-        # Append final node
         full_route_nodes.append(nodes[best_route_indices[-1]])
         
-        # Sum travel distance in meters
         total_distance = 0
         for k in range(len(best_route_indices)-1):
             i, j = best_route_indices[k], best_route_indices[k + 1]
@@ -121,14 +111,12 @@ def find_optimal_route(city_name, points, start_point = None, route_type = 'driv
         print(f"Kļūda: {e}")
         return None
     
-    # Visualize the optimal route
 def plot_optimal_route(route_info, original_points, city_name, route_type):
     fig, ax = plt.subplots(figsize=(14, 12))
      
     ox.plot_graph(route_info['graph'], ax=ax, show=False, close=False,
                   node_size=0, edge_color='lightgray', edge_linewidth=0.5)
     
-    # Plot the graph and the chosen route
     ox.plot_graph_route(route_info['graph'], route_info['route_nodes'], 
                        ax=ax, route_color='red', route_linewidth=5, 
                        route_alpha=0.8, show=False, close=False)
@@ -146,7 +134,6 @@ def plot_optimal_route(route_info, original_points, city_name, route_type):
                 alpha=0.8, markeredgecolor='white', markeredgewidth=2,
                 label=f'{i+1}. {point}')
     
-    # Draw directional arrows between successive points
     for i in range(len(optimal_order) - 1):
         start_idx = original_points.index(optimal_order[i])
         end_idx = original_points.index(optimal_order[i + 1])

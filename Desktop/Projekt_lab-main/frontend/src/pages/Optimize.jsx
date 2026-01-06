@@ -23,8 +23,6 @@ export default function Optimize(){
   const mapRef = useRef(null)
   const leafletLayersRef = useRef({ markers: [], polyline: null })
   const scriptLoadedRef = useRef(false)
-  const [routeImage, setRouteImage] = useState(null)
-  const html2canvasLoadedRef = useRef(false)
 
   // Load Leaflet runtime from CDN for map rendering
   useEffect(()=>{
@@ -37,20 +35,6 @@ export default function Optimize(){
       document.body.appendChild(s)
     } else {
       scriptLoadedRef.current = true
-    }
-  }, [])
-
-  // Load html2canvas to capture map snapshots
-  useEffect(() => {
-    if (!document.getElementById('html2canvas-js')){
-      const s = document.createElement('script')
-      s.id = 'html2canvas-js'
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
-      s.async = true
-      s.onload = ()=>{ html2canvasLoadedRef.current = true }
-      document.body.appendChild(s)
-    } else {
-      html2canvasLoadedRef.current = true
     }
   }, [])
 
@@ -78,6 +62,14 @@ export default function Optimize(){
       if (selectedOrders.length > 0){
         const resp = await assignRoute(selectedOrders, courierId ? Number(courierId) : null, null)
         alert('Route created, assigned orders: ' + (resp.orders_assigned || 0))
+        // Reload orders list to exclude assigned orders
+        const o = await listOrders()
+        setOrdersList(o)
+        setSelectedOrders([])
+        setResult(null)
+        setCourierId('')
+        setSuitableCouriers([])
+        setOrderZones(null)
       } else {
         const path = result.optimal_order || result.order || []
         const orderIds = Array.isArray(path) ? path.map(p => (p && p.id) ? p.id : null).filter(Boolean) : []
@@ -92,12 +84,26 @@ export default function Optimize(){
         }
         const saved = await createRoute(payload)
         alert('Route saved with id ' + (saved.id || 'unknown'))
+        // Reload orders list to exclude assigned orders
+        const o = await listOrders()
+        setOrdersList(o)
+        setSelectedOrders([])
+        setResult(null)
+        setCourierId('')
+        setSuitableCouriers([])
+        setOrderZones(null)
       }
     }catch(e){ alert('Save failed: ' + e.message) }
   }
 
   function renderMap(){
-    return <div id="opt-map" style={{height:250}} />
+    return (
+      <div style={{marginTop: '20px', marginBottom: '20px'}}>
+        <h4>📍 Route Map (Real Road Path)</h4>
+        <div id="opt-map" style={{height: 400, border: '2px solid #1976d2', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}} />
+        <p style={{fontSize: '12px', color: '#666', marginTop: '8px'}}>Blue line shows the actual route following roads in Riga</p>
+      </div>
+    )
   }
 
   // Sync Leaflet map when a new result arrives
@@ -106,7 +112,10 @@ export default function Optimize(){
     if (!scriptLoadedRef.current || typeof window.L === 'undefined') return;
 
     const L = window.L
-    const coords = result && (result.coordinates || (result.optimal_order && result.optimal_order.map(p=>[p.lat,p.lng])))
+    
+    // Use route_geometry for the line if available, otherwise fall back to points
+    const routeGeometry = result.route_geometry;
+    const coords = result && (result.coordinates || (result.optimal_order && result.optimal_order.map(p=>[p.lat,p.lng])) || result.ordered_points)
     if(!coords || coords.length === 0) return;
     const latlngs = coords.map(c => Array.isArray(c)?[c[0], c[1]]: [c[0], c[1]])
 
@@ -122,39 +131,20 @@ export default function Optimize(){
     if (layers.polyline){ mapRef.current.removeLayer(layers.polyline); layers.polyline = null }
     layers.markers.forEach(m=>mapRef.current.removeLayer(m)); layers.markers = []
 
-    layers.polyline = L.polyline(latlngs, {color:'red'}).addTo(mapRef.current)
+    // Use route geometry if available (actual road route), otherwise use straight lines between points
+    if (routeGeometry && routeGeometry.length > 0) {
+      layers.polyline = L.polyline(routeGeometry, {color:'blue', weight: 4}).addTo(mapRef.current)
+    } else {
+      layers.polyline = L.polyline(latlngs, {color:'red'}).addTo(mapRef.current)
+    }
+    
+    // Add markers for delivery points
     latlngs.forEach((p,i)=>{
       const m = L.marker(p).addTo(mapRef.current).bindPopup(`#${i+1}`)
       layers.markers.push(m)
     })
 
     try{ mapRef.current.fitBounds(latlngs, {padding:[20,20]}) }catch(e){}
-
-    // Capture PNG snapshot of the rendered map when html2canvas is loaded
-    try{
-      if (html2canvasLoadedRef.current && window.html2canvas){
-        setTimeout(()=>{
-          try{
-            window.html2canvas(document.getElementById('opt-map')).then(canvas=>{
-              try{
-                const data = canvas.toDataURL('image/png')
-                setRouteImage(data)
-              }catch(e){/* ignore */}
-            }).catch(()=>{})
-          }catch(e){}
-        }, 300)
-      }
-    }catch(e){}
-
-    // Fallback: generate vector-only snapshot to avoid tile CORS issues
-    try{
-      if (!routeImage && latlngs && latlngs.length>0){
-        try{
-          const data = generateVectorSnapshot(latlngs, result)
-          if (data) setRouteImage(data)
-        }catch(e){}
-      }
-    }catch(e){}
 
   }, [result])
 
@@ -212,60 +202,26 @@ export default function Optimize(){
     }
   }
 
-  function generateVectorSnapshot(latlngs, result) {
-    // Vector-only snapshot generation
-    const width = 400, height = 300
-    const canvas = document.createElement('canvas')
-    canvas.width = width
-    canvas.height = height
-    const ctx = canvas.getContext('2d')
+  function generateGoogleMapsUrl(result) {
+    if (!result || !result.ordered_points || result.ordered_points.length < 2) return null;
     
-    if (!ctx) return null
+    const points = result.ordered_points;
+    const origin = `${points[0][0]},${points[0][1]}`;
+    const destination = `${points[points.length - 1][0]},${points[points.length - 1][1]}`;
     
-    ctx.fillStyle = '#fff'
-    ctx.fillRect(0, 0, width, height)
+    // Waypoints are all points between origin and destination
+    const waypoints = points.slice(1, -1).map(p => `${p[0]},${p[1]}`).join('|');
     
-    let minLat = latlngs[0][0], maxLat = minLat
-    let minLng = latlngs[0][1], maxLng = minLng
-    latlngs.forEach(p => {
-      minLat = Math.min(minLat, p[0]); maxLat = Math.max(maxLat, p[0])
-      minLng = Math.min(minLng, p[1]); maxLng = Math.max(maxLng, p[1])
-    })
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`;
+    if (waypoints) {
+      url += `&waypoints=${waypoints}`;
+    }
     
-    const padding = 20
-    const latRange = maxLat - minLat || 0.001
-    const lngRange = maxLng - minLng || 0.001
-    const scale = Math.min((width - 2*padding) / lngRange, (height - 2*padding) / latRange)
-    
-    ctx.strokeStyle = '#ff0000'
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    latlngs.forEach((p, i) => {
-      const x = padding + (p[1] - minLng) * scale
-      const y = height - padding - (p[0] - minLat) * scale
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
-    })
-    ctx.stroke()
-    
-    latlngs.forEach((p, i) => {
-      const x = padding + (p[1] - minLng) * scale
-      const y = height - padding - (p[0] - minLat) * scale
-      ctx.fillStyle = '#0000ff'
-      ctx.beginPath()
-      ctx.arc(x, y, 5, 0, 2*Math.PI)
-      ctx.fill()
-      ctx.fillStyle = '#fff'
-      ctx.font = 'bold 10px Arial'
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText(i+1, x, y)
-    })
-    
-    return canvas.toDataURL('image/png')
+    return url;
   }
 
   return (
-    <div className="container">
+    <div className="container" style={{maxWidth: '45%'}}>
       <h2>Route optimization</h2>
       
       <div style={{maxWidth: '600px', marginBottom: '12px'}}>
@@ -298,33 +254,20 @@ export default function Optimize(){
             <option value="">— choose courier —</option>
             {suitableCouriers.length > 0 && (
               <>
-                <optgroup label="✓ Suitable Couriers">
+                <optgroup label="✓ Recommended Couriers">
                   {suitableCouriers.map(c => (
                     <option key={c.courier_id} value={c.courier_id}>
-                      {c.username} ({c.car_number}) - {c.total_hours}h/8h
+                      {c.username} ({c.car_number}) - {c.work_area_name}
                     </option>
                   ))}
                 </optgroup>
               </>
             )}
-            {suitableCouriers.length === 0 && selectedOrders.length > 0 && (
-              <>
-                <optgroup label="⚠ All Couriers (workload warning)">
-                  {users.filter(u => u.role === 'kurjers').map(u => (
-                    <option key={u.id} value={u.id}>{u.username || u.name || `User #${u.id}`}</option>
-                  ))}
-                </optgroup>
-              </>
-            )}
-            {selectedOrders.length === 0 && (
-              <>
-                <optgroup label="All Couriers">
-                  {users.filter(u => u.role === 'kurjers').map(u => (
-                    <option key={u.id} value={u.id}>{u.username || u.name || `User #${u.id}`}</option>
-                  ))}
-                </optgroup>
-              </>
-            )}
+            <optgroup label={suitableCouriers.length > 0 ? "Other Couriers" : "All Couriers"}>
+              {users.filter(u => u.role === 'kurjers' && !suitableCouriers.find(sc => sc.courier_id === u.id)).map(u => (
+                <option key={u.id} value={u.id}>{u.username || u.name || `User #${u.id}`}</option>
+              ))}
+            </optgroup>
           </select>
         </div>
 
@@ -366,17 +309,22 @@ export default function Optimize(){
 
         {suitableCouriers.length > 0 && (
           <div style={{marginBottom: '12px', padding: '8px', backgroundColor: '#e8f5e9', border: '1px solid #4caf50', borderRadius: '4px'}}>
-            <h5 style={{margin: '0 0 8px 0', color: '#2e7d32'}}>✓ Suitable Couriers Found</h5>
+            <h5 style={{margin: '0 0 8px 0', color: '#2e7d32'}}>✓ Recommended Couriers</h5>
             <div style={{fontSize: '12px'}}>
-              {suitableCouriers.length} courier(s) available for these orders
+              {suitableCouriers.length} courier(s) with suitable workload and capacity
             </div>
             <div style={{fontSize: '12px', marginTop: '4px'}}>
               {suitableCouriers.map(c => (
                 <div key={c.courier_id} style={{marginTop: '6px', paddingLeft: '8px', borderLeft: '3px solid #4caf50'}}>
                   <strong>{c.username}</strong> 
                   {c.work_area_name && <span style={{marginLeft: '8px', backgroundColor: '#c8e6c9', padding: '2px 6px', borderRadius: '3px', fontSize: '11px'}}>🗺️ {c.work_area_name}</span>}
-                  <br/>Car: {c.car_number} (Size: {c.car_size}, Weight: {c.car_weight})
-                  <br/>Workload: {c.current_hours}h (current) + {c.estimated_new_hours}h (new) = {c.total_hours}h
+                  {c.in_zone_count !== undefined && c.total_orders && (
+                    <span style={{marginLeft: '8px', backgroundColor: c.in_zone_count === c.total_orders ? '#c8e6c9' : '#fff9c4', padding: '2px 6px', borderRadius: '3px', fontSize: '11px'}}>
+                      📍 {c.in_zone_count}/{c.total_orders} in zone
+                    </span>
+                  )}
+                  <br/>Car: {c.car_number} (Size: {c.car_size}m³, Weight: {c.car_weight}kg)
+                  <br/>Routes today: {c.current_routes}
                 </div>
               ))}
             </div>
@@ -385,9 +333,9 @@ export default function Optimize(){
 
         {selectedOrders.length > 0 && suitableCouriers.length === 0 && (
           <div style={{marginBottom: '12px', padding: '8px', backgroundColor: '#fff3e0', border: '1px solid #ff9800', borderRadius: '4px'}}>
-            <h5 style={{margin: '0 0 8px 0', color: '#e65100'}}>⚠ No Suitable Couriers</h5>
+            <h5 style={{margin: '0 0 8px 0', color: '#e65100'}}>⚠ No Recommended Couriers</h5>
             <div style={{fontSize: '12px'}}>
-              No couriers available for these orders (workload limit or vehicle capacity issue)
+              Selected orders may exceed courier capacity or workload limits. You can still assign manually.
             </div>
           </div>
         )}
@@ -423,23 +371,54 @@ export default function Optimize(){
           <p><strong>Distance (km):</strong> {((result.total_distance_km ?? result.distance_km ?? 0) || 0).toFixed(2)} km</p>
           <p><strong>Estimated Time:</strong> {result.estimated_time_minutes ? `${Math.floor(result.estimated_time_minutes / 60)}h ${result.estimated_time_minutes % 60}min` : '—'}</p>
           <p><strong>Order sequence:</strong> {result.optimal_order ? result.optimal_order.join(' → ') : result.order?.join(' → ') || '—'}</p>
+          
+          <div style={{marginTop: '16px', padding: '12px', backgroundColor: '#f0f7ff', border: '1px solid #2196f3', borderRadius: '6px'}}>
+            <h5 style={{margin: '0 0 10px 0', color: '#1976d2'}}>🚗 Start Navigation</h5>
+            <p style={{fontSize: '13px', color: '#666', marginBottom: '12px'}}>Open route in Google Maps:</p>
+            <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
+              {generateGoogleMapsUrl(result) && (
+                <a 
+                  href={generateGoogleMapsUrl(result)} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px 20px',
+                    backgroundColor: '#4285f4',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '6px',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = '#357ae8';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = '#4285f4';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+                  }}
+                >
+                  <span style={{fontSize: '20px'}}>📍</span>
+                  Open in Google Maps
+                </a>
+              )}
+            </div>
+            <p style={{fontSize: '11px', color: '#999', marginTop: '10px', marginBottom: 0}}>
+              💡 Click to open the complete route with all delivery stops in Google Maps
+            </p>
+          </div>
         </div>
       )}
 
       {result && !result.error && renderMap()}
-
-      {/* Snapshot preview and download */}
-      {routeImage && (
-        <div style={{marginTop:12}}>
-          <h4>Route Image</h4>
-          <div style={{display:'flex', gap:12, alignItems:'center'}}>
-            <img src={routeImage} alt="Route snapshot" style={{maxWidth:400, border:'1px solid #ddd'}} />
-            <div>
-              <a href={routeImage} download={`route_${Date.now()}.png`} className="btn btn-secondary">Download PNG</a>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

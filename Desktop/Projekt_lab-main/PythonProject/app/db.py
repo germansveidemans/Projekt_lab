@@ -1,3 +1,4 @@
+
 from mysql.connector import pooling
 from flask import g
 
@@ -17,7 +18,7 @@ def init_pool(app):
 
 
 def get_connection():
-    if "db_conn" not in g:
+    if"db_conn" not in g:
         g.db_conn = _pool.get_connection()
 
     return g.db_conn

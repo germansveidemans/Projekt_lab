@@ -1,3 +1,4 @@
+
 from flask import Blueprint, request, jsonify
 from app.services.ClientService import ClientService
 
@@ -9,11 +10,16 @@ def list_clients():
         clients = ClientService.list_clients()
         return jsonify([
             {
-                "id": c.id,
-                "name_surname": c.name_surname,
-                "email": c.email,
-                "address": c.address,
-                "phone_number": c.phone_number
+
+"id": c.id,
+
+"name_surname": c.name_surname,
+
+"email": c.email,
+
+"address": c.address,
+
+"phone_number": c.phone_number
             }
             for c in clients
         ])
@@ -26,14 +32,19 @@ def list_clients():
 def get_client(client_id):
     client = ClientService.get_client(client_id)
     if not client:
-        return jsonify({"error": "Client not found"}), 404
+        return jsonify({"error":"Client not found"}), 404
 
     return jsonify({
-        "id": client.id,
-        "name_surname": client.name_surname,
-        "email": client.email,
-        "address": client.address,
-        "phone_number": client.phone_number
+
+"id": client.id,
+
+"name_surname": client.name_surname,
+
+"email": client.email,
+
+"address": client.address,
+
+"phone_number": client.phone_number
     })
 
 
@@ -41,10 +52,24 @@ def get_client(client_id):
 def create_client():
     data = request.get_json() or {}
 
-    required = ["name_surname", "email", "address", "phone_number"]
+    required = ["name_surname","email","address","phone_number"]
     for field in required:
         if field not in data:
-            return jsonify({"error": f"{field} is required"}), 400
+            return jsonify({"error":f"{field} is required"}), 400
+
+    if not data.get("name_surname") or not data.get("name_surname").strip():
+        return jsonify({"error":"Name is required"}), 400
+    if not data.get("email") or not data.get("email").strip():
+        return jsonify({"error":"Email is required"}), 400
+    if not data.get("address") or not data.get("address").strip():
+        return jsonify({"error":"Address is required"}), 400
+    if not data.get("phone_number") or not data.get("phone_number").strip():
+        return jsonify({"error":"Phone number is required"}), 400
+
+    import re
+    email_pattern =r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+    if not re.match(email_pattern, data["email"]):
+        return jsonify({"error":"Invalid email format"}), 400
 
     client = ClientService.create_client(
         data["name_surname"],
@@ -60,10 +85,24 @@ def create_client():
 def update_client(client_id):
     data = request.get_json() or {}
 
-    required = ["name_surname", "email", "address", "phone_number"]
+    required = ["name_surname","email","address","phone_number"]
     for field in required:
         if field not in data:
-            return jsonify({"error": f"{field} is required"}), 400
+            return jsonify({"error":f"{field} is required"}), 400
+
+    if not data.get("name_surname") or not data.get("name_surname").strip():
+        return jsonify({"error":"Name is required"}), 400
+    if not data.get("email") or not data.get("email").strip():
+        return jsonify({"error":"Email is required"}), 400
+    if not data.get("address") or not data.get("address").strip():
+        return jsonify({"error":"Address is required"}), 400
+    if not data.get("phone_number") or not data.get("phone_number").strip():
+        return jsonify({"error":"Phone number is required"}), 400
+
+    import re
+    email_pattern =r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+    if not re.match(email_pattern, data["email"]):
+        return jsonify({"error":"Invalid email format"}), 400
 
     client = ClientService.update_client(
         client_id,
@@ -74,16 +113,16 @@ def update_client(client_id):
     )
 
     if not client:
-        return jsonify({"error": "Client not found"}), 404
+        return jsonify({"error":"Client not found"}), 404
 
-    return jsonify({"status": "updated"})
+    return jsonify({"status":"updated"})
 
 
 @client_bp.delete("/<int:client_id>")
 def delete_client(client_id):
     deleted = ClientService.delete_client(client_id)
     if not deleted:
-        return jsonify({"error": "Client not found"}), 404
+        return jsonify({"error":"Client not found"}), 404
 
-    return jsonify({"status": "deleted"})
+    return jsonify({"status":"deleted"})
 

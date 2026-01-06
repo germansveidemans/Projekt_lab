@@ -11,7 +11,6 @@ opt_bp = Blueprint("optimize", __name__, url_prefix="/optimize")
 
 @opt_bp.post('/clear-cache')
 def clear_cache():
-    """Clear geocoding and distance caches"""
     opt_module._GEOCODE_CACHE.clear()
     opt_module._DISTANCE_CACHE.clear()
     return jsonify({"status": "Cache cleared", "message": "Geocoding and distance caches have been cleared"})
@@ -19,44 +18,45 @@ def clear_cache():
 
 @opt_bp.post('/order-zones')
 def get_order_zones():
-    """Get zone information for selected orders"""
     data = request.get_json() or {}
     order_ids = data.get('order_ids') or []
     
     if not order_ids:
         return jsonify({"error": "order_ids list required"}), 400
     
-    # Fetch work areas
     work_areas = WorkAreaService.list_work_areas()
     work_area_map = {wa.id: wa for wa in work_areas}
     
-    # Process each order
     orders_info = []
-    zones_involved = {}  # zone_id -> zone_name
+    zones_involved = {}
     
     for order_id in order_ids:
         order = OrderService.get_order(order_id)
         if not order:
             continue
         
-        # Get order address and coordinates
         address = order.address or ""
         
-        # Geocode the address
         lat, lng = None, None
-        try:
-            print(f"[ZONE-INFO] Geocoding address: {address}")
-            lat, lng = real_geocode(address)
-            print(f"[ZONE-INFO] Geocode result: ({lat}, {lng})")
-        except Exception as e:
-            print(f"[ERROR] Failed to geocode {address}: {e}")
-            import traceback
-            traceback.print_exc()
+        if address and address.strip():
+            try:
+                print(f"[ZONE-INFO] Geocoding address: {address}")
+                result = real_geocode(address)
+                if result and len(result) == 2:
+                    lat, lng = result
+                    print(f"[ZONE-INFO] Geocode result: ({lat}, {lng})")
+                else:
+                    print(f"[ERROR] Invalid geocode result for {address}: {result}")
+            except Exception as e:
+                print(f"[ERROR] Failed to geocode {address}: {e}")
+                import traceback
+                traceback.print_exc()
+        else:
+            print(f"[ERROR] Empty or invalid address for order {order_id}")
         
-        # Find which zone this order belongs to
         zone_id = None
         zone_name = "Unknown Zone"
-        zone_color = "#999999"
+        zone_color = "#808080"
         
         if lat is not None and lng is not None:
             for wa in work_areas:
@@ -64,17 +64,16 @@ def get_order_zones():
                     zone_id = wa.id
                     zone_name = wa.name
                     zones_involved[wa.id] = wa.name
-                    # Assign colors
                     colors = {
-                        "Old Riga": "#FF6B6B",
-                        "New Riga": "#4ECDC4",
-                        "Centre": "#FFD93D",
-                        "North": "#6BCB77",
-                        "South": "#A29BFE",
-                        "East": "#FFA502",
-                        "West": "#FF7675"
+                        "Old Riga": "#8B4513",
+                        "New Riga": "#FF6347",
+                        "Centre": "#4169E1",
+                        "North": "#32CD32",
+                        "South": "#FFD700",
+                        "East": "#FF69B4",
+                        "West": "#9370DB"
                     }
-                    zone_color = colors.get(wa.name, "#999999")
+                    zone_color = colors.get(wa.name, "#808080")
                     break
         
         orders_info.append({
@@ -97,13 +96,11 @@ def get_order_zones():
 @opt_bp.post('/compute')
 def compute_route():
     print("[DEBUG] /optimize/compute called")
-    # accept JSON body with list of orders: [{id, lat, lng, size, weight}, ...]
     data = request.get_json() or {}
     orders = data.get('orders')
     if not orders or not isinstance(orders, list):
         return jsonify({"error": "orders list required"}), 400
 
-    # try osmnx-based exact search if available, otherwise fallback to nearest-neighbor
     try:
         city = data.get('city')
         start = data.get('start')
@@ -114,7 +111,6 @@ def compute_route():
             result = OptimizationService.compute_nearest_neighbor(orders, start)
     except Exception as e:
         print(f"[DEBUG] Exception in compute: {e}")
-        # on any error, fallback
         try:
             result = OptimizationService.compute_nearest_neighbor(orders, data.get('start'))
         except Exception:
@@ -135,7 +131,6 @@ def compute_and_assign():
     if not order_ids or not isinstance(order_ids, list):
         return jsonify({"error": "order_ids (list) required"}), 400
 
-    # fetch orders
     orders = []
     for oid in order_ids:
         o = OrderService.get_order(oid)
@@ -146,31 +141,30 @@ def compute_and_assign():
             'address': o.address,
         })
     
-    # Sort orders by ID to ensure consistent ordering
     orders.sort(key=lambda x: x['id'])
 
-    # compute route
     result = None
     try:
         result = OptimizationService.compute_with_osmnx(orders, city_name=city, start_point=None)
         if result is None:
             result = OptimizationService.compute_nearest_neighbor(orders, None, city)
     except Exception as e:
-        # fallback
         try:
             result = OptimizationService.compute_nearest_neighbor(orders, None, city)
         except Exception as e2:
             return jsonify({"error": str(e2)}), 500
 
-    # create route record
     try:
         print(f"[DEBUG] Creating route: courier_id={courier_id}, total_orders={len(order_ids)}")
-        # determine optimized order sequence returned by optimizer
         optimized_ids = result.get('order') or result.get('optimal_order') or order_ids
 
-        # build optimized_path as list of delivery addresses in optimized order
         id_to_address = {o['id']: o.get('address') for o in orders}
         optimized_path = [id_to_address.get(i) or '' for i in optimized_ids]
+
+        from datetime import date, timedelta
+        estimated_minutes = result.get('estimated_time_minutes', 0)
+        estimated_days = max(1, (estimated_minutes + 480 - 1) // 480)
+        delivery_date = date.today() + timedelta(days=estimated_days)
 
         route = RouteService.create_route(
             courier_id=courier_id,
@@ -178,15 +172,28 @@ def compute_and_assign():
             total_distance=round((result.get('total_distance_km') or result.get('distance_km') or 0) * 1000),
             optimized_path=optimized_path,
             optimized_order_ids=optimized_ids,
-            estimated_time_minutes=result.get('estimated_time_minutes', 0),
-            status='atdots kurjēram',  # Use one of the valid ENUM values
+            estimated_time_minutes=estimated_minutes,
+            status='atdots kurjēram',
+            delivery_date=delivery_date,
         )
-        print(f"[DEBUG] Route created with id: {route.id if route else None}")
+        print(f"[DEBUG] Route created with id: {route.id if route else None}, delivery_date: {delivery_date}")
+        
+        for oid in optimized_ids:
+            try:
+                OrderService.update_order_status(oid, 'progresā')
+                print(f"[DEBUG] Updated order {oid} status to progresā")
+            except Exception as update_error:
+                print(f"[WARNING] Failed to update order {oid} status: {update_error}")
+            
+            try:
+                OrderService.update_order_delivery_date(oid, delivery_date)
+                print(f"[DEBUG] Updated order {oid} delivery date to {delivery_date}")
+            except Exception as update_error:
+                print(f"[WARNING] Failed to update order {oid} delivery date: {update_error}")
     except Exception as e:
         import traceback
         traceback.print_exc()
         print(f"[ERROR] Failed to create route: {e}")
         return jsonify({"error": str(e)}), 500
 
-    # no longer assign orders via separate endpoint; route now stores order ids directly
     return jsonify({"route": route_to_dict(route), "orders_assigned": len(order_ids)})

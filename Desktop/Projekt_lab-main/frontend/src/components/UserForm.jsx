@@ -5,7 +5,7 @@ export default function UserForm({ user, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    role: 'user',
+    role: 'kurjers',
     work_area_id: '',
   });
   const [errors, setErrors] = useState({});
@@ -89,7 +89,7 @@ export default function UserForm({ user, onSubmit, onCancel }) {
         <div className="form-group">
           <label htmlFor="role">Role:</label>
           <select id="role" name="role" value={formData.role} onChange={handleChange}>
-            <option value="user">User</option>
+            <option value="kurjers">Kurjers (Courier)</option>
             <option value="admin">Admin</option>
             <option value="manager">Manager</option>
           </select>

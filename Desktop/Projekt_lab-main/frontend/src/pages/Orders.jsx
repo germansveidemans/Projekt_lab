@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { listOrders, createOrder, updateOrder, deleteOrder, listClients } from '../services/api';
+import { listAllOrders, createOrder, updateOrder, deleteOrder, listClients } from '../services/api';
 import OrderForm from '../components/OrderForm';
 import '../styles.css';
 
@@ -21,7 +21,7 @@ export default function Orders() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [ordersData, clientsData] = await Promise.all([listOrders(), listClients()]);
+      const [ordersData, clientsData] = await Promise.all([listAllOrders(), listClients()]);
       setOrders(ordersData);
       setClients(clientsData);
       setError(null);
@@ -118,9 +118,9 @@ export default function Orders() {
                     <td>#{order.id}</td>
                     <td>{getClientName(order.client_id)}</td>
                     <td>{order.address || '-'}</td>
-                    <td>{order.size}kg / {order.weight}m³</td>
-                    <td>{order.expected_delivery_time ? new Date(order.expected_delivery_time).toLocaleString() : '-'}</td>
-                    <td><strong>{order.route_status}</strong></td>
+                    <td>{order.size}m³ / {order.weight}kg</td>
+                    <td>{order.expected_delivery_time ? new Date(order.expected_delivery_time).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}) : '-'}</td>
+                    <td>{order.route_status}</td>
                     <td>
                       <button
                         className="btn btn-small btn-view"
@@ -165,13 +165,10 @@ export default function Orders() {
             <h3>Order #{selectedOrder.id} Details</h3>
             <p><strong>Client:</strong> {getClientName(selectedOrder.client_id)}</p>
             <p><strong>Address:</strong> {selectedOrder.address || '-'}</p>
-            <p><strong>Size:</strong> {selectedOrder.size} kg</p>
-            <p><strong>Weight:</strong> {selectedOrder.weight} m³</p>
-            <p><strong>Expected Delivery:</strong> {selectedOrder.expected_delivery_time ? new Date(selectedOrder.expected_delivery_time).toLocaleString() : '-'}</p>
+            <p><strong>Size:</strong> {selectedOrder.size} m³</p>
+            <p><strong>Weight:</strong> {selectedOrder.weight} kg</p>
+            <p><strong>Expected Delivery:</strong> {selectedOrder.expected_delivery_time ? new Date(selectedOrder.expected_delivery_time).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}) : '-'}</p>
             <p><strong>Status:</strong> {selectedOrder.route_status}</p>
-            {selectedOrder.actual_delivery_time && (
-              <p><strong>Actual Delivery:</strong> {new Date(selectedOrder.actual_delivery_time).toLocaleString()}</p>
-            )}
             <p><strong>Created:</strong> {selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleString() : '-'}</p>
             <div style={{textAlign: 'right', marginTop: '12px'}}>
               <button className="btn" onClick={() => setShowDetails(false)}>Close</button>

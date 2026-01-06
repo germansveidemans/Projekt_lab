@@ -1,5 +1,6 @@
+
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, date
 
 @dataclass
 class Route:
@@ -12,6 +13,7 @@ class Route:
     optimized_order_ids: list = None
     status: str = None
     created_at: datetime | None = None
+    delivery_date: date | None = None
     
     def __post_init__(self):
         if self.optimized_path is None:

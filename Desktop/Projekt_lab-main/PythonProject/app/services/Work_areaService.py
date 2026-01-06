@@ -1,3 +1,4 @@
+
 from app.db import get_connection
 from app.models.work_area import WorkArea
 
@@ -46,17 +47,16 @@ class WorkAreaService:
                         min_lng: float = None, max_lng: float = None) -> WorkArea:
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
-        # check uniqueness
         cursor.execute("SELECT id FROM work_areas WHERE name=%s", (name,))
         existing = cursor.fetchone()
         if existing:
             cursor.close()
             raise ValueError('Work area with this name already exists')
 
-        # insert
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO work_areas (name, min_lat, max_lat, min_lng, max_lng) VALUES (%s, %s, %s, %s, %s)",
+
+"INSERT INTO work_areas (name, min_lat, max_lat, min_lng, max_lng) VALUES (%s, %s, %s, %s, %s)",
             (name, min_lat, max_lat, min_lng, max_lng)
         )
         conn.commit()
@@ -70,7 +70,6 @@ class WorkAreaService:
         conn = get_connection()
         cursor = conn.cursor()
         
-        # Build dynamic update query
         updates = []
         params = []
         
@@ -95,7 +94,7 @@ class WorkAreaService:
             return WorkArea(id=work_area_id, name=name)
         
         params.append(work_area_id)
-        query = f"UPDATE work_areas SET {', '.join(updates)} WHERE id=%s"
+        query =f"UPDATE work_areas SET {', '.join(updates)} WHERE id=%s"
         cursor.execute(query, params)
         conn.commit()
         updated = cursor.rowcount

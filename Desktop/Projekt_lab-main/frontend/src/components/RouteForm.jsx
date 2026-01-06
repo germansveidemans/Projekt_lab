@@ -3,36 +3,31 @@ import '../styles.css';
 
 export default function RouteForm({ route, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
-    work_time: '',
-    date: '',
+    courier_id: '',
     total_orders: '',
     total_distance: '',
-    status: 'atdots kurjēram',
-    courier_id: '',
-    optimized_path: '',
+    estimated_time_minutes: '',
+    status: 'pending',
   });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (route) {
       setFormData({
-        work_time: route.work_time,
-        date: route.date ? route.date.split('T')[0] : '',
+        courier_id: route.courier_id || '',
         total_orders: route.total_orders,
         total_distance: route.total_distance,
-        status: route.status,
-        courier_id: route.courier_id || '',
-        optimized_path: route.optimized_path || '',
+        estimated_time_minutes: route.estimated_time_minutes || '',
+        status: route.status || 'pending',
       });
     }
   }, [route]);
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.work_time || formData.work_time <= 0) newErrors.work_time = 'Work time must be greater than 0';
-    if (!formData.date) newErrors.date = 'Date is required';
     if (!formData.total_orders || formData.total_orders <= 0) newErrors.total_orders = 'Total orders must be greater than 0';
     if (!formData.total_distance || formData.total_distance < 0) newErrors.total_distance = 'Total distance must be >= 0';
+    if (!formData.estimated_time_minutes || formData.estimated_time_minutes < 0) newErrors.estimated_time_minutes = 'Estimated time must be >= 0';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -55,13 +50,11 @@ export default function RouteForm({ route, onSubmit, onCancel }) {
     e.preventDefault();
     if (!validateForm()) return;
     onSubmit({
-      work_time: parseInt(formData.work_time),
-      date: formData.date,
-      total_orders: parseInt(formData.total_orders),
-      total_distance: parseFloat(formData.total_distance),
-      status: formData.status,
       courier_id: formData.courier_id ? parseInt(formData.courier_id) : null,
-      optimized_path: formData.optimized_path || null,
+      total_orders: parseInt(formData.total_orders),
+      total_distance: parseInt(formData.total_distance),
+      estimated_time_minutes: parseInt(formData.estimated_time_minutes) || 0,
+      status: formData.status,
     });
   };
 
@@ -70,29 +63,15 @@ export default function RouteForm({ route, onSubmit, onCancel }) {
       <h2>{route ? 'Edit Route' : 'Add New Route'}</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="work_time">Work Time (hours):</label>
+          <label htmlFor="courier_id">Courier ID:</label>
           <input
             type="number"
-            id="work_time"
-            name="work_time"
-            value={formData.work_time}
+            id="courier_id"
+            name="courier_id"
+            value={formData.courier_id}
             onChange={handleChange}
-            className={errors.work_time ? 'error' : ''}
+            placeholder="Optional"
           />
-          {errors.work_time && <span className="error-text">{errors.work_time}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="date">Date:</label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className={errors.date ? 'error' : ''}
-          />
-          {errors.date && <span className="error-text">{errors.date}</span>}
         </div>
 
         <div className="form-group">
@@ -116,42 +95,32 @@ export default function RouteForm({ route, onSubmit, onCancel }) {
             name="total_distance"
             value={formData.total_distance}
             onChange={handleChange}
-            step="0.1"
             className={errors.total_distance ? 'error' : ''}
           />
           {errors.total_distance && <span className="error-text">{errors.total_distance}</span>}
         </div>
 
         <div className="form-group">
-          <label htmlFor="status">Status:</label>
-          <select id="status" name="status" value={formData.status} onChange={handleChange}>
-            <option value="atdots kurjēram">atdots kurjēram</option>
-            <option value="izskatīšanā">izskatīšanā</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="courier_id">Courier ID:</label>
+          <label htmlFor="estimated_time_minutes">Estimated Time (minutes):</label>
           <input
             type="number"
-            id="courier_id"
-            name="courier_id"
-            value={formData.courier_id}
+            id="estimated_time_minutes"
+            name="estimated_time_minutes"
+            value={formData.estimated_time_minutes}
             onChange={handleChange}
-            placeholder="Optional"
+            className={errors.estimated_time_minutes ? 'error' : ''}
           />
+          {errors.estimated_time_minutes && <span className="error-text">{errors.estimated_time_minutes}</span>}
         </div>
 
         <div className="form-group">
-          <label htmlFor="optimized_path">Optimized Path:</label>
-          <input
-            type="text"
-            id="optimized_path"
-            name="optimized_path"
-            value={formData.optimized_path}
-            onChange={handleChange}
-            placeholder="Optional (JSON format)"
-          />
+          <label htmlFor="status">Status:</label>
+          <select id="status" name="status" value={formData.status} onChange={handleChange}>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
         </div>
 
         <div className="form-actions">

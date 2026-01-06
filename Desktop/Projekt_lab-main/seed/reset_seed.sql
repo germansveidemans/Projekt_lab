@@ -1,9 +1,11 @@
 -- Reset and seed data for new architecture
--- Run with: mysql -h <host> -u <user> -p <db> < seed/reset_seed.sql
+-- Run with: mysql -h projlab.mysql.database.azure.com -u Veideman -p proj_lab < seed/reset_seed.sql
+-- Or: mysql -h projlab.mysql.database.azure.com -u Veideman -pAsdfgQwert!2345 proj_lab < seed/reset_seed.sql
 
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE orders;
+TRUNCATE TABLE courier_statistics;
 TRUNCATE TABLE routes;
+TRUNCATE TABLE orders;
 TRUNCATE TABLE car;
 TRUNCATE TABLE users;
 TRUNCATE TABLE clients;
@@ -12,13 +14,13 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- Work areas (bounding boxes for Riga)
 INSERT INTO work_areas (id, name, min_lat, max_lat, min_lng, max_lng) VALUES
- (10, 'Old Riga (Vecrīga)',        56.9048, 56.9105, 24.1030, 24.1150),
- (11, 'New Riga (Jaunā Rīga)',     56.9150, 56.9280, 24.1070, 24.1350),
- (12, 'Centre (Centrs)',           56.9200, 56.9380, 24.1050, 24.1420),
- (13, 'North (Ziemeļi)',           56.9380, 57.0000, 24.0800, 24.1700),
- (14, 'South (Dienvidi)',          56.8800, 56.9150, 24.0900, 24.1600),
- (15, 'East (Austrumi)',           56.8950, 56.9400, 24.1600, 24.2200),
- (16, 'West (Rietumi)',            56.8950, 56.9400, 23.9800, 24.0900);
+ (10, 'Old Riga (Vecrīga)',        56.9000, 56.9150, 24.0950, 24.1250),
+ (11, 'New Riga (Jaunā Rīga)',     56.9100, 56.9350, 24.0950, 24.1500),
+ (12, 'Centre (Centrs)',           56.9150, 56.9450, 24.0950, 24.1550),
+ (13, 'North (Ziemeļi)',           56.9300, 57.0200, 24.0600, 24.1900),
+ (14, 'South (Dienvidi)',          56.8700, 56.9250, 24.0700, 24.1800),
+ (15, 'East (Austrumi)',           56.8850, 56.9500, 24.1500, 24.2400),
+ (16, 'West (Rietumi)',            56.8850, 56.9500, 23.9600, 24.1000);
 
 -- Clients
 INSERT INTO clients (id, name_surname, email, address, phone_number) VALUES
@@ -47,41 +49,45 @@ INSERT INTO users (id, username, password, role, work_area_id) VALUES
  (10, 'kurjers10', 'pass10','kurjers', 14);
 
 -- Cars matched 1:1 to courier users
+-- size: cubic meters (10-20 m³), weight capacity: kg (800-1500 kg)
 INSERT INTO car (id, size, weight, vehicle_number, user_id) VALUES
- (1,  120.0, 1200.0, 'LV-1001', 1),
- (2,  120.0, 1200.0, 'LV-1002', 2),
- (3,  140.0, 1400.0, 'LV-1003', 3),
- (4,  140.0, 1400.0, 'LV-1004', 4),
- (5,  100.0, 1000.0, 'LV-1005', 5),
- (6,  100.0, 1000.0, 'LV-1006', 6),
- (7,  160.0, 1600.0, 'LV-1007', 7),
- (8,  120.0, 1200.0, 'LV-1008', 8),
- (9,  140.0, 1400.0, 'LV-1009', 9),
- (10, 160.0, 1600.0, 'LV-1010', 10);
+ (1,  12.0, 900.0,  'LV-1001', 1),
+ (2,  12.0, 900.0,  'LV-1002', 2),
+ (3,  15.0, 1200.0, 'LV-1003', 3),
+ (4,  15.0, 1200.0, 'LV-1004', 4),
+ (5,  10.0, 800.0,  'LV-1005', 5),
+ (6,  10.0, 800.0,  'LV-1006', 6),
+ (7,  20.0, 1500.0, 'LV-1007', 7),
+ (8,  12.0, 900.0,  'LV-1008', 8),
+ (9,  15.0, 1200.0, 'LV-1009', 9),
+ (10, 20.0, 1500.0, 'LV-1010', 10);
 
 -- Orders (20) mapped to clients; addresses chosen inside defined zones
--- route_status set to 'izskatīšanā'
-INSERT INTO orders (id, size, weight, client_id, adress, expected_delivery_time, route_status, actual_delivery_time, created_at, updated_at) VALUES
- (1,  10.0, 5.0,  1,  'Kaļķu iela 10, Rīga',              NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (2,  12.0, 6.0,  2,  'Dzirnavu iela 45, Rīga',           NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (3,  8.0,  4.0,  3,  'Krišjāņa Barona iela 30, Rīga',    NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (4,  15.0, 7.0,  4,  'Brīvības iela 115, Rīga',          NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (5,  9.0,  4.5,  5,  'Maskavas iela 45, Rīga',           NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (6,  11.0, 5.5,  6,  'Pērnavas iela 15, Rīga',           NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (7,  13.0, 6.5,  7,  'Ģertrūdes iela 80, Rīga',          NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (8,  7.0,  3.5,  8,  'Avotu iela 20, Rīga',              NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (9,  10.0, 5.0,  9,  'Miera iela 12, Rīga',              NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (10, 14.0, 7.0,  10, 'Kalnciema iela 5, Rīga',           NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (11, 12.0, 6.0,  1,  'Baznīcas iela 30, Rīga',           NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (12, 9.0,  4.5,  2,  'Tērbatas iela 50, Rīga',           NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (13, 11.0, 5.5,  3,  'Krasta iela 50, Rīga',             NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (14, 13.0, 6.5,  4,  'Ķengaraga iela 5, Rīga',           NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (15, 8.0,  4.0,  5,  'Mūkusalas iela 15, Rīga',          NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (16, 10.0, 5.0,  6,  'Skanstes iela 7, Rīga',            NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (17, 9.0,  4.5,  7,  'Brīvības gatve 214, Rīga',         NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (18, 12.0, 6.0,  8,  'Daugavgrīvas iela 80, Rīga',       NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (19, 7.0,  3.5,  9,  'Imantas 8. līnija 3, Rīga',        NOW(), 'izskatīšanā', NULL, NOW(), NOW()),
- (20, 6.0,  3.0,  10, 'Ulbrokas iela 10, Rīga',           NOW(), 'izskatīšanā', NULL, NOW(), NOW());
+-- route_status: 'gatavs', 'progresā', 'atcelts', 'izskatīšanā', 'piegādāts'
+-- expected_delivery_time: DATE (no time component)
+-- First 15 orders: small packages (0.05-0.3 m³, 0.5-5 kg)
+-- Last 5 orders: heavy boxes (0.4-1.0 m³, 10-25 kg)
+INSERT INTO orders (id, size, weight, client_id, adress, expected_delivery_time, route_status, created_at, updated_at) VALUES
+ (1,  0.08, 1.2,  1,  'Kaļķu iela 10, Rīga',              '2026-01-08', 'izskatīšanā', NOW(), NOW()),
+ (2,  0.15, 2.5,  2,  'Dzirnavu iela 45, Rīga',           '2026-01-08', 'izskatīšanā', NOW(), NOW()),
+ (3,  0.05, 0.8,  3,  'Krišjāņa Barona iela 30, Rīga',    '2026-01-08', 'izskatīšanā', NOW(), NOW()),
+ (4,  0.20, 3.5,  4,  'Brīvības iela 115, Rīga',          '2026-01-09', 'izskatīšanā', NOW(), NOW()),
+ (5,  0.12, 2.0,  5,  'Maskavas iela 45, Rīga',           '2026-01-09', 'izskatīšanā', NOW(), NOW()),
+ (6,  0.18, 3.0,  6,  'Pērnavas iela 15, Rīga',           '2026-01-09', 'izskatīšanā', NOW(), NOW()),
+ (7,  0.25, 4.2,  7,  'Ģertrūdes iela 80, Rīga',          '2026-01-10', 'izskatīšanā', NOW(), NOW()),
+ (8,  0.06, 0.9,  8,  'Avotu iela 20, Rīga',              '2026-01-10', 'izskatīšanā', NOW(), NOW()),
+ (9,  0.10, 1.5,  9,  'Miera iela 12, Rīga',              '2026-01-10', 'izskatīšanā', NOW(), NOW()),
+ (10, 0.22, 3.8,  10, 'Kalnciema iela 5, Rīga',           '2026-01-11', 'izskatīšanā', NOW(), NOW()),
+ (11, 0.14, 2.3,  1,  'Baznīcas iela 30, Rīga',           '2026-01-11', 'izskatīšanā', NOW(), NOW()),
+ (12, 0.09, 1.4,  2,  'Tērbatas iela 50, Rīga',           '2026-01-11', 'izskatīšanā', NOW(), NOW()),
+ (13, 0.16, 2.7,  3,  'Krasta iela 50, Rīga',             '2026-01-12', 'izskatīšanā', NOW(), NOW()),
+ (14, 0.28, 4.8,  4,  'Ķengaraga iela 5, Rīga',           '2026-01-12', 'izskatīšanā', NOW(), NOW()),
+ (15, 0.11, 1.8,  5,  'Mūkusalas iela 15, Rīga',          '2026-01-12', 'izskatīšanā', NOW(), NOW()),
+ (16, 0.65, 18.0, 6,  'Skanstes iela 7, Rīga',            '2026-01-13', 'izskatīšanā', NOW(), NOW()),
+ (17, 0.80, 22.0, 7,  'Brīvības gatve 214, Rīga',         '2026-01-13', 'izskatīšanā', NOW(), NOW()),
+ (18, 0.50, 14.5, 8,  'Daugavgrīvas iela 80, Rīga',       '2026-01-13', 'izskatīšanā', NOW(), NOW()),
+ (19, 0.95, 24.0, 9,  'Imantas 8. līnija 3, Rīga',        '2026-01-14', 'izskatīšanā', NOW(), NOW()),
+ (20, 0.70, 19.5, 10, 'Ulbrokas iela 10, Rīga',           '2026-01-14', 'izskatīšanā', NOW(), NOW());
 
 -- Reset AUTO_INCREMENTs for neat IDs
 ALTER TABLE work_areas AUTO_INCREMENT = 100;
@@ -90,3 +96,20 @@ ALTER TABLE car AUTO_INCREMENT = 200;
 ALTER TABLE clients AUTO_INCREMENT = 200;
 ALTER TABLE orders AUTO_INCREMENT = 300;
 ALTER TABLE routes AUTO_INCREMENT = 300;
+ALTER TABLE courier_statistics AUTO_INCREMENT = 100;
+
+-- Routes table is empty - users will create routes themselves
+
+-- Courier statistics initialized with zeros for all couriers
+-- Columns: id, courier_id, total_routes, completed_routes, total_distance_km, total_orders_delivered, last_updated
+INSERT INTO courier_statistics (courier_id, total_routes, completed_routes, total_distance_km, total_orders_delivered, last_updated) VALUES
+ (1,  0, 0, 0.0, 0, NOW()),
+ (2,  0, 0, 0.0, 0, NOW()),
+ (3,  0, 0, 0.0, 0, NOW()),
+ (4,  0, 0, 0.0, 0, NOW()),
+ (5,  0, 0, 0.0, 0, NOW()),
+ (6,  0, 0, 0.0, 0, NOW()),
+ (7,  0, 0, 0.0, 0, NOW()),
+ (8,  0, 0, 0.0, 0, NOW()),
+ (9,  0, 0, 0.0, 0, NOW()),
+ (10, 0, 0, 0.0, 0, NOW());

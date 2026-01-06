@@ -49,8 +49,8 @@ export default function CarForm({ car, onSubmit, onCancel }) {
     if (!validateForm()) return;
     onSubmit({
       vehicle_number: formData.vehicle_number,
-      size: parseInt(formData.size),
-      weight: parseInt(formData.weight),
+      size: parseFloat(formData.size),
+      weight: parseFloat(formData.weight),
       user_id: formData.user_id ? parseInt(formData.user_id) : null,
     });
   };
@@ -80,6 +80,7 @@ export default function CarForm({ car, onSubmit, onCancel }) {
             name="size"
             value={formData.size}
             onChange={handleChange}
+            step="0.1"
             className={errors.size ? 'error' : ''}
           />
           {errors.size && <span className="error-text">{errors.size}</span>}
@@ -93,6 +94,7 @@ export default function CarForm({ car, onSubmit, onCancel }) {
             name="weight"
             value={formData.weight}
             onChange={handleChange}
+            step="0.1"
             className={errors.weight ? 'error' : ''}
           />
           {errors.weight && <span className="error-text">{errors.weight}</span>}
