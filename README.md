@@ -2,7 +2,7 @@
 
 ## Ievads
 
-Maršrutu optimizācijas problēma ir viena no klasiskākajām operāciju pētījumu problēmām, kas ir svarīga loģistikas un piegādes nozarēs. Tā pazīstama arī kā Ceļojošā komivoyažiera problēma (Traveling Salesman Problem - TSP), kas pirmo reizi formulēta 19. gadsimtā. Problēmas būtība ir atrast optimālu maršrutu, kas ļauj apmeklēt vairākus punktus ar minimāliem izmaksām vai attālumu.
+Maršrutu optimizācijas problēma ir viena no klasiskākajām operāciju pētījumu problēmām, kas ir svarīga loģistikas un piegādes nozarēs. Tā pazīstama arī kā pārdevēja ceļojuma problēma (Traveling Salesman Problem - TSP), kas pirmo reizi formulēta 19. gadsimtā. Problēmas būtība ir atrast optimālu maršrutu, kas ļauj apmeklēt vairākus punktus ar minimāliem izmaksām vai attālumu.
 
 Mūsdienu loģistikas uzņēmumiem ir nepieciešams efektīvi plānot kurjeru maršrutus, lai samazinātu degvielas patēriņu, laiku un kopējās izmaksas, vienlaikus nodrošinot kvalitatīvu klientu apkalpošanu. Tradicionāli maršrutu plānošana tika veikta manuāli, taču tas ir laikietilpīgi un bieži vien neoptimāli. Tāpēc ir nepieciešamas automatizētas sistēmas, kas spēj ātri aprēķināt optimālus maršrutus, ņemot vērā vairākus faktorus.
 
