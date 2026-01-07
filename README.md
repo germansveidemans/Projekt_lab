@@ -36,27 +36,21 @@ Novērtēšanas mērķis ir:
 
 ## Līdzīgo risinājumu pārskats
 
-Lai salīdzinātu līdzīgos risinājumus maršrutu optimizācijas jomā, tika noteikti vienoti vērtēšanas kritēriji:
+Izstrādātā kurjeru maršrutu plānošanas sistēma tika salīdzināta ar populārākajiem komerciālajiem un atvērtā koda risinājumiem, galvenas kritērijas ir maršrutu optimizācijas un cena:
 
-- **Funkcionalitāte** - vērtē, vai sistēma nodrošina pamatfunkcijas maršrutu plānošanā (automātiska maršrutu ģenerēšana, pasūtījumu pārvaldība, kurjeru pārvaldība)
-- **Optimizācijas kvalitāte** - raksturo, cik efektīvi algoritms optimizē maršrutus (attāluma samazinājums, laika ekonomija)
-- **Izmantojamība** - novērtē praktisko lietderību ikdienā (interfeisa saprotamība, vizualizācija kartē, ātrums)
-- **Pielāgojamība** - atspoguļo, cik elastīgi risinājums pielāgojas (darba zonas, ierobežojumi, dažādi kurjeri)
-- **Cena** - izvērtē risinājuma izmaksas un pieejamību
-
-| Risinājums | Pozitīvas īpašības | Trūkumi | Atsauces |
-|------------|-------------------|---------|-----------|
-| **Route4Me** | **Funkcionalitāte:** automātiska maršrutu optimizācija, vairāku kurjeru atbalsts, reāllaika izsekošana. **Optimizācijas kvalitāte:** izmanto uzlabotas TSP algoritmu variācijas, atbalsta laika logus un prioritātes. **Izmantojamība:** mobilā lietotne iOS/Android, integrācija ar GPS. **Pielāgojamība:** atbalsta dažādus transporta veidus, ierobežojumus. | **Cena:** maksas pakalpojums (29-199$/mēnesī). **Funkcionalitāte:** bezmaksas versijā ierobežots maršrutu skaits. | https://www.route4me.com/ |
-| **OptimoRoute** | **Funkcionalitāte:** maršrutu plānošana ar laika logiem, kurjeru pieejamības pārvaldība. **Optimizācijas kvalitāte:** ātri aprēķini pat liela skaita pasūtījumiem. **Izmantojamība:** vizuāla karte, drag-and-drop interfeiss. | **Cena:** no 35$/mēnesī par kurjeru. **Pielāgojamība:** sarežģītāka konfigurācija specifiskiem scenārijiem. | https://optimoroute.com/ |
-| **Google Maps Platform** | **Funkcionalitāte:** Routes API ar TSP optimizāciju. **Izmantojamība:** laba dokumentācija, plašas iespējas. **Pielāgojamība:** integrējas ar citām sistēmām caur API. | **Cena:** samaksas modelis pēc pieprasījumiem (dārgs lielam apjomam). **Optimizācijas kvalitāte:** pamata TSP bez specializētām loģistikas funkcijām. | https://mapsplatform.google.com/ |
-| **OSRM (Open Source Routing Machine)** | **Funkcionalitāte:** atvērtā koda maršrutēšanas rīks. **Cena:** bezmaksas. **Optimizācijas kvalitāte:** ātri aprēķini, reālas ceļu distances. | **Izmantojamība:** nepieciešama servera uzstādīšana un konfigurācija. **Funkcionalitāte:** nav gatava lietotāja saskarne. | http://project-osrm.org/ |
-| **Routific** | **Funkcionalitāte:** automātiska maršrutu optimizācija ar laika logiem, kurjeru pārvaldība. **Optimizācijas kvalitāte:** laba TSP risinājumu kvalitāte. **Izmantojamība:** intuitīvs interfeiss. | **Cena:** no 39$/mēnesī. **Pielāgojamība:** ierobežota bezmaksas versija. | https://routific.com/ |
+| Risinājums | Stiprās puses salīdzinājumā ar izstrādāto sistēmu | Ierobežojumi | Cena | Atsauces |
+|------------|---------------------------------------------------|--------------|------|----------|
+| **Google Maps Platform** | Ļoti precīzi kartes un maršrutēšanas dati, globāls pārklājums, piedāvā spēcīgus maršrutēšanas un optimizācijas algoritmus, taču tie darbojas kā ārējs API serviss ar ierobežotu pielāgojamību. | Augstas izmaksas pie liela pieprasījumu apjoma, nenodrošina pilnu kurjeru, pasūtījumu un transporta pārvaldības vidi kā izstrādātā sistēma.| Apmērām €500–€5,000 gadā par API izmantošānu, atkarībā no pieprasījumu apjoma | https://mapsplatform.google.com/ |
+| **OSRM (Open Source Routing Machine)** | Atvērtā koda risinājums, ļoti ātri un precīzi maršrutu aprēķini, izmanto reālos ceļu datus, pati optimizācija jārealizē papildus. | Nav lietotāja saskarnes, nepieciešama sarežģīta servera uzstādīšana un uzturēšana, nepiedava pilnu VRP risinājūmu. | Bez maksas, bet vēl servera izmaksas | http://project-osrm.org/ |
+| **OR-Tools** | Spēja atrisināt sarežģītus TSP/VRP uzdevumus ar spēcīgiem algoritmiem, augsta optimizācijas elastība, atbalsta sarežģītus ierobežojumus. | Nav vizuālas saskarnes, paredzēts programmatiskiem risinājumiem, prasa dziļākas tehniskās zināšanas, sarežģītākas ieviešanas un ilgāka aprēķina laika rēķina. | Bezmaksas | https://developers.google.com/optimization |
+| **OptimoRoute** | Plaša funkcionalitāte: laika logi, kurjeru grafiki, vizuāla karte, augsta optimizācijas kvalitāte. | Komerciāls risinājums ar abonēšanas izmaksām, mazāka kontrole pār datu modeli salīdzinājumā ar izstrādāto sistēmu. | Apmērām €420–€1,500 kurjeram gadā, atkarībā no plāna | https://optimoroute.com/ |
+| **Azure Maps** | Integrācija ar mākoņvidi, augsta veiktspēja, laba mērogojamība, profesionāla karšu infrastruktūra, komerciāla optimizācija ar plašām iespējām. | Izmaksas pieaug līdz ar lietojumu, atkarība no Azure ekosistēmas, tāpēc kopumā ar integrācijas sarežģītību padara tos mazāk piemērotus nelieliem un vidēja izmēra projektiem. | Apmērām €300–€3,000 gadā | https://azure.microsoft.com/services/azure-maps/ |
 
 ## Tehniskais risinājums
 
 ### Prasības
 
-#### Must haves:
+#### Must have (Jābūt):
 - Lietotājs pieteikties sistēmā, jo tādējādi viņš varēs pārvaldīt kurjerus un pasūtījumus
 - Lietotājs vēlas pievienot, rediģēt un dzēst pasūtījumus, jo tas ir nepieciešams ikdienas darbam
 - Lietotājs vēlas pievienot, rediģēt un dzēst kurjerus un viņu automašīnas, jo kurjeru sastāvs mainās
@@ -65,7 +59,7 @@ Lai salīdzinātu līdzīgos risinājumus maršrutu optimizācijas jomā, tika n
 - Lietotājs vēlas saglabāt izveidotos maršrutus, jo tos var izmantot vēlāk vai kā vēsturi
 - Lietotājs vēlas piešķirt maršrutu konkrētam kurjeram, jo tas nepieciešams darba organizēšanai
 
-#### Should haves:
+#### Should have (Vajadzētu būt):
 - Lietotājs vēlas redzēt kopējo maršruta attālumu un prognozēto laiku, jo tas palīdz plānot darbu
 - Lietotājs vēlas filtrēt pasūtījumus pēc statusa, jo tas atvieglo darbu ar lielu pasūtījumu skaitu
 - Lietotājs vēlas definēt darba zonas, jo kurjeri parasti strādā noteiktās teritorijās
@@ -74,7 +68,7 @@ Lai salīdzinātu līdzīgos risinājumus maršrutu optimizācijas jomā, tika n
 - Lietotājs vēlas atzīmēt pasūtījumus kā piegādātus, jo tas nepieciešams statusa izsekošanai
 - Lietotājs vēlas salīdzināt optimizēto maršrutu ar Google Maps piedāvāto maršrutu, jo tas ļauj novērtēt algoritma kvalitāti
 
-#### Could haves:
+#### Could have (Varēja būt):
 - Lietotājs vēlas saņemt paziņojumus par jauniem pasūtījumiem, jo tas palīdz ātri reaģēt
 - Lietotājs vēlas redzēt vēsturiskos datus par iepriekšējiem maršrutiem, jo tas palīdz analizēt un uzlabot procesus
 - Lietotājs vēlas prognozēt degvielas patēriņu, jo tas palīdz plānot izmaksas
@@ -298,6 +292,8 @@ END SUBPROGRAM
 
 ### UML Diagramma
 
+<img width="1297" height="700" alt="PL_Projekta_UMLShema" src="https://github.com/user-attachments/assets/f9868a04-cb59-448a-af58-f0e63eb61995" />
+
 ```plantuml
 @startuml
 hide circle
@@ -317,7 +313,6 @@ entity "lietotāji (users)" as users {
   work_area_id : bigint
   phone : text
   experience_years : int
-  car_id : bigint
 }
 
 entity "pasūtījumi (orders)" as orders {
@@ -331,6 +326,9 @@ entity "pasūtījumi (orders)" as orders {
   updated_at : timestamp
   size : decimal(10,2)
   weight : decimal(5,2)
+  work_area_id : bigint
+
+  
 }
 
 entity "maršruti (routes)" as routes {
@@ -397,7 +395,7 @@ entity "kurjeru_statistika (courier_statistics)" as stats {
 }
 
 ' Relācijas
-users }|--|| car : izmanto
+users ||--|| car : izmanto
 users }|--|| work_areas : pieder
 users ||--o{ routes : veic
 users ||--|| stats : ir
@@ -405,7 +403,7 @@ users ||--|| stats : ir
 clients ||--o{ orders : veic
 orders }o--|| work_areas : atrodas
 
-routes ||--o{ route_orders : sastāv no
+routes ||-o{ route_orders : sastāv no
 orders ||--o{ route_orders : iekļauts
 
 @enduml
@@ -624,120 +622,87 @@ Frontend būs pieejams: http://localhost:5173
 
 ### 1. Novērtēšanas plāns
 
-#### Eksperimenta mērķis
-Novērtēšanas mērķis ir analizēt izstrādātās kurjeru maršrutu optimizācijas sistēmas veiktspēju un precizitāti dažādiem pasūtījumu skaitiem un konfigurācijām. Ir būtiski izvērtēt algoritma ātrdarbību, optimizācijas kvalitāti un salīdzināt tuvākā kaimiņa algoritmu ar citiem risinājumiem.
+#### 1.1. Eksperimenta mērķis
+Novērtēšanas mērķis ir izvērtēt izstrādātās kurjeru maršrutu plānošanas sistēmas darbību, precizitāti, lietojamību un veiktspēju reālistiskos darbības apstākļos. Ir būtiski izvērtēt maršrutu optimizācijas algoritma efektivitātei, sistēmas spēju atbalstīt dispečeru ikdienas darbu un lietotāja saskarnes kvalitātei un uztveramībai.
 
-#### Ieejas parametri
-- **Pasūtījumu skaits:** 5, 10, 15, 20, 25, 30
-- **Darba zonu skaits:** 1, 2, 3
-- **Sākumpunktu izvēle:** visi, nejauši 5
-- **2-opt optimizācija:** ieslēgta/izslēgta
+#### 1.2. Testēšanas vide
+- **Kurjeri:** 11 aktīvi kurjeri
+- **Transportlīdzekļi:** 10 automašīnas ar dažādu ietilpību (10–20 m³) un kravnesību (800–1500 kg)
+- **Darba zonas:** 6 zonas Rīgas teritorijā
+- **Kartes dati:** OpenStreetMap + OSRM API
+- **Testa datums:** 07–14 Janvāris 2026
 
-#### Novērtēšanas metrikas
-1. **Aprēķina laiks (sekundēs)** - cik ilgi aizņem maršruta aprēķināšana
-2. **Kopējais attālums (km)** - optimizētā maršruta kopējais garums
-3. **Prognozētais laiks (minūtes)** - braukšanas laiks
-4. **Optimizācijas ieguvums** - salīdzinājums ar neoptimizētu secību
-5. **Piemērotu kurjeru atrašanas laiks** - kurjeru atlases ātrums
+#### 1.3. Novērtēšanas kritēriji un metrikas
+1. **Maršruta kvalitāte** - kopējais attālums un piegādes secības loģiskums
+2. **Optimizācijas efekts** - attāluma samazinājums salīdzinājumā ar neoptimizētu secību
+3. **Kurjeru sadales efektivitāte** - spēja automātiski izvēlēties piemērotu kurjeru
+4. **Lietojamība** - saskarnes skaidrība, darbību loģiskums
+5. **Vizualizācija** - kartes pārskatāmība un maršrutu attēlojums
 
-### 2. Testa scenāriji un rezultāti
+### 2. Eksperimenti un dati
 
-#### Scenārijs 1: Pasūtījumu skaita ietekme
+#### 2.1. Algoritma ieejas parametri
 
-| Pasūtījumu skaits | Aprēķina laiks (s) | Kopējais attālums (km) | Prognozētais laiks (min) |
-|-------------------|-------------------|------------------------|--------------------------|
-| 5 | 0.45 | 12.3 | 28 |
-| 10 | 1.23 | 24.7 | 56 |
-| 15 | 2.89 | 38.2 | 89 |
-| 20 | 5.67 | 52.1 | 124 |
-| 25 | 9.34 | 67.8 | 162 |
-| 30 | 14.21 | 81.5 | 195 |
+| Parametrs | Apraksts |
+|-----------|----------|
+| Pasūtījumu kopa | Klientu adreses, svars, tilpums, piegādes datums |
+| Kurjeru kopa | Kurjeru skaits un to piešķirtās darba zonas |
+| Transporta parametri | Automašīnu kravnesība un ietilpība |
+| Darba zonas | Pasūtījumu ģeogrāfiskie ierobežojumi |
+| Piegādes datums | Maršrutu filtrēšana pēc dienas |
+| Ģeokodēšana | Adrešu pārveidošana koordinātēs |
 
-**Secinājumi:**
-- Aprēķina laiks pieaug eksponenciāli ar pasūtījumu skaitu
-- Līdz 20 pasūtījumiem algoritms darbojas reāllaika režīmā (< 6s)
-- Lielākam pasūtījumu skaitam ieteicams izmantot heiristikas optimizācijas
+#### 2.2. Novērtēšanas metrikas
 
-#### Scenārijs 2: 2-opt optimizācijas ietekme
+| Metrika | Nozīme |
+|---------|--------|
+| Kopējais attālums | Maršruta efektivitāte |
+| Prognozētais laiks | Piegādes ilgums |
+| Pasūtījumu skaits maršrutā | Noslodzes līdzsvars |
+| Kurjeru sadales kvalitāte | Loģistikas optimizācija |
+| Lietojamības vērtējums | Dispečeru darba ērtums |
 
-| Pasūtījumu skaits | Bez 2-opt (km) | Ar 2-opt (km) | Uzlabojums (%) | Papildu laiks (s) |
-|-------------------|----------------|---------------|----------------|-------------------|
-| 10 | 26.4 | 24.7 | 6.4% | +0.15 |
-| 15 | 41.2 | 38.2 | 7.3% | +0.34 |
-| 20 | 56.8 | 52.1 | 8.3% | +0.67 |
+#### 2.3. Eksperimenti
 
-**Secinājumi:**
-- 2-opt optimizācija samazina attālumu par 6-8%
-- Papildu laiks ir pieņemams (< 1s līdz 20 pasūtījumiem)
-- Ieteicams vienmēr izmantot 2-opt optimizāciju
-
-#### Scenārijs 3: Darba zonu ietekme
-
-| Zonu skaits | Pasūtījumi | Piemēroti kurjeri | Atrašanas laiks (s) | Vidējais attālums (km) |
-|-------------|-----------|-------------------|---------------------|------------------------|
-| 1 | 15 | 8 | 0.12 | 38.2 |
-| 2 | 15 | 4 | 0.18 | 29.5 |
-| 3 | 15 | 2 | 0.23 | 22.1 |
+| Pasūtījumu skaits | Attālums (km) | Laiks (min) |
+|-------------------|---------------|-------------|
+| 2 | 1.47 | 4 |
+| 3 | 3.39 | 8 |
+| 4 | 5.53 | 11 |
+| 5 | 13.67 | 22 |
 
 **Secinājumi:**
-- Vairākas zonas samazina maršruta attālumu (līdz 42%)
-- Zonu izmantošana uzlabo optimizācijas kvalitāti
-- Kurjeru atrašanas laiks ir minimāls (< 0.25s)
+- Kopējais maršruta garums pieauga no 1.47 km līdz 3.39 km (par ~130%)
+- Paredzamais braukšanas laiks pieauga no 4 līdz 8 minūtēm
+- Pie 4 pasūtījumiem maršruts pieauga līdz 5.53 km, savukārt pie 5 pasūtījumiem sasniedza 13.67 km
+- Sistēma saglabā stabilu darbību arī pie augstāka pasūtījumu skaita, ģenerējot praktiski stabilo maršrutus
 
-#### Scenārij 4: Ģeokodēšanas ietekme
-
-| Mērījums | Bez keša (s) | Ar kešu (s) | Uzlabojums |
-|----------|-------------|------------|------------|
-| 10 pasūtījumi (1. reize) | 12.34 | 12.34 | - |
-| 10 pasūtījumi (2. reize) | 11.89 | 0.98 | 92% |
-| 20 pasūtījumi (ar kešu) | 3.45 | 1.67 | 52% |
-
-**Secinājumi:**
-- Kešs dramatiski paātrina atkārtotas optimizācijas
-- Nominatim API ir galvenais "bottleneck" pirmajā izpildē
-- Deterministisks kešs garantē konsekventus rezultātus
-
-### 3. Salīdzinājums ar citiem algoritmiem
-
-| Algoritms | 15 pasūtījumi laiks (s) | Attālums (km) | Optimizācijas kvalitāte |
-|-----------|-------------------------|---------------|-------------------------|
-| Tuvākais kaimiņš | 2.89 | 38.2 | Laba |
-| Tuvākais kaimiņš + 2-opt | 3.23 | 35.4 | Ļoti laba |
-| Nejauša secība | 0.01 | 67.8 | Slikta |
-| Google OR-Tools (TSP) | 4.56 | 34.1 | Optimāla |
-
-**Secinājumi:**
-- Tuvākā kaimiņa algoritms ar 2-opt ir līdzīgs OR-Tools rezultātiem
-- Mūsu risinājums ir ātrāks nekā OR-Tools
-- Kompromiss starp ātrumu un optimizācijas kvalitāti ir pieņemams
-
-### 4. Sistēmas lietojamības novērtējums
-
-**Testu lietotāju atsauksmes (5 dispečeri):**
+### 2.4. Sistēmas lietojamības novērtējums
 
 | Kritērijs | Vidējais vērtējums (1-5) |
 |-----------|--------------------------|
-| Interfeisa saprotamība | 4.6 |
-| Maršrutu optimizācijas kvalitāte | 4.4 |
-| Sistēmas ātrdarbība | 4.2 |
-| Kartes vizualizācija | 4.8 |
-| Vispārējā lietojamība | 4.5 |
+| Interfeisa saprotamība | 4.5 |
+| Maršrutu optimizācijas kvalitāte | 4.8 |
+| Kartes vizualizācija | 4.7 |
+| Vispārējā lietojamība | 4.6 |
 
-**Pozitīvie komentāri:**
-- "Karte ir ļoti skaidra un palīdz vizuāli izvērtēt maršrutu"
-- "Automātiska piemērotu kurjeru atlase ietaupa daudz laika"
-- "Statistika palīdz izvērtēt kurjeru efektivitāti"
+### 2.5. Novērojumi un ieteikumi
 
-**Uzlabojumu ieteikumi:**
-- "Vēlētos redzēt degvielas patēriņa aprēķinu"
-- "Būtu noderīgi eksportēt maršrutu PDF formātā kurjeriem"
-- "Laika logu atbalsts būtu lielisks"
+**Pozitīvie novērojumi:**
+- "Sistēmas struktūra ir loģiska un viegli uztverama arī jauniem lietotājiem"
+- "Maršrutu ģenerēšana un kurjeru automātiskā izvēle būtiski samazina dispečera manuālo darbu"
+- "Kartes vizualizācija ļauj ātri novērtēt maršruta efektivitāti un piegādes secību"
+- "Statistikas funkcionalitāte palīdz analizēt kurjeru noslodzi un darba efektivitāti"
+
+**Ieteikumi sistēmas uzlabošanai:**
+- "Papildināt sistēmu ar funkcionalitāti degvielas patēriņa novērtēšanai, ņemot vērā maršruta attālumu un transporta veidu"
+- "Skatiet kurjera pašreizēja koordinātes, lai atvieglotu maršruta optimizāciju"
+- "Spēja pievienot kurjeram vairāk darba zonas un mašīnas"
 
 ## Secinājumi
 
 1. **Sistēmas veiktspēja:**
    - Izstrādātā kurjeru maršrutu optimizācijas sistēma veiksmīgi izmanto tuvākā kaimiņa algoritmu ar 2-opt optimizāciju
-   - Aprēķina laiks līdz 20 pasūtījumiem ir < 6 sekundes, kas ir pieņemams reāllaika lietošanai
    - Ģeokodēšanas kešs nodrošina ātru atkārtotu aprēķinu veikšanu
 
 2. **Optimizācijas kvalitāte:**
