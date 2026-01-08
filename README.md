@@ -706,8 +706,8 @@ Novērtēšanas mērķis ir izvērtēt izstrādātās kurjeru maršrutu plānoš
    - Ģeokodēšanas kešs nodrošina ātru atkārtotu aprēķinu veikšanu
 
 2. **Optimizācijas kvalitāte:**
-   - 2-opt optimizācija uzlabo rezultātus par 6-8%
-   - Darba zonu izmantošana samazina maršruta attālumu par līdz 42%
+   - 2-opt optimizācija uzlabo rezultātus
+   - Darba zonu izmantošana samazina maršruta attālumu 
    - Tuvākā kaimiņa algoritms ar 2-opt ir salīdzināms ar Google OR-Tools risinājumiem
 
 3. **Reālo datu izmantošana:**
